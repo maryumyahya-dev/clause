@@ -1,4 +1,3 @@
-
 from langchain.chat_models import init_chat_model
 from langchain_qdrant import QdrantVectorStore
 from pydantic import BaseModel, Field
@@ -52,7 +51,7 @@ class RagService:
         self.chat_model = init_chat_model(
             model=self.settings.chat_model,
             model_provider=self.settings.chat_provider,
-            temperature=self.settings.temperature,
+            temperature=self.settings.chat_temperature,
         )
 
     # ======================================
@@ -116,7 +115,7 @@ Answer:
         if not question:
             raise ValueError("Question cannot be empty.")
 
-        # Retrieve
+        # Retrieve documents
         documents = self.retrieve(question)
 
         if not documents:
@@ -126,7 +125,7 @@ Answer:
                 sources=[],
             )
 
-        # Context
+        # Prepare context
         context = self.prepare_context(documents)
 
         # Generate answer
@@ -135,7 +134,7 @@ Answer:
             context=context,
         )
 
-        # Sources
+        # Extract sources
         sources = [
             Source(
                 source=doc.metadata.get("source", "unknown"),
@@ -149,3 +148,12 @@ Answer:
             answer=answer_text,
             sources=sources,
         )
+
+    # ======================================
+    # 7. CLOSE CONNECTION
+    # ======================================
+
+    def close(self):
+
+        if self.client:
+            self.client.close()
