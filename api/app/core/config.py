@@ -71,6 +71,8 @@
 
 from functools import lru_cache
 from pathlib import Path
+from pathlib import Path
+qdrant_path: str = str(Path(__file__).resolve().parents[2] / "vector_stores")
 
 from langchain.embeddings import init_embeddings
 from langchain_core.embeddings import Embeddings
@@ -132,7 +134,7 @@ class Settings(BaseSettings):
     # ======================================
 
     collection_name: str = "shop_handbook"
-    qdrant_path: str = "./qdrant_data"
+    qdrant_path: str = "./vector_stores/"
     qdrant_url: str | None = None
 
     # ======================================

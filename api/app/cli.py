@@ -2,8 +2,8 @@
 
 
 
-from services.ingestion import ingest
-from services.chat import RagService
+# from services.ingestion import ingest
+from app.services.chat import RagService
 
 def main():
     rag_service = RagService()
