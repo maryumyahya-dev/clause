@@ -1,13 +1,13 @@
 from langchain.agents import create_agent
 from langchain.messages import HumanMessage
 
-
 from app.core.config import get_settings
-from app.prompts.loader import get_prompt
 from app.llm.models import get_chat_model
+from app.middleware.stacks import default_stack
+from app.prompts.loader import get_prompt
 from app.rag.vectorstore import get_vector_store
 from app.tools.knowledge.handbook import file_search
-from app.middleware.stacks import default_stack
+
 
 class ClauseAgent:
     def __init__(self) -> None:
@@ -31,17 +31,17 @@ class ClauseAgent:
         #     texts = []
         #     sources = []
 
-            # for doc, score in results:
-            #     texts.append(doc.page_content)
+        # for doc, score in results:
+        #     texts.append(doc.page_content)
 
-            #     sources.append({
-            #         "sources": doc.metadata.get("sources"),
-            #         "page": doc.metadata.get("page"),
-            #         "score": round(score, 4),
-            #     })
+        #     sources.append({
+        #         "sources": doc.metadata.get("sources"),
+        #         "page": doc.metadata.get("page"),
+        #         "score": round(score, 4),
+        #     })
 
-            # combined_text = "\n\n".join(texts)
-            # return combined_text, sources
+        # combined_text = "\n\n".join(texts)
+        # return combined_text, sources
 
         self.agent = create_agent(
             model=get_chat_model(settings=self.settings),
@@ -50,13 +50,11 @@ class ClauseAgent:
                 name="support/system",
                 version=self.settings.system_prompt_version,
             ),
-             middleware=default_stack(self.settings),
+            middleware=default_stack(self.settings),
         )
 
     def ask(self, question: str) -> str:
-        result = self.agent.invoke({
-            "messages": [HumanMessage(content=question)]
-        })
+        result = self.agent.invoke({"messages": [HumanMessage(content=question)]})
 
         messages = result["messages"]
         return messages[-1].text
@@ -64,4 +62,3 @@ class ClauseAgent:
     def close(self) -> None:
         if hasattr(self, "store") and self.store is not None:
             self.store.client.close()
-        

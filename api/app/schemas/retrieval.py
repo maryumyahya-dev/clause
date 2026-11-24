@@ -1,9 +1,9 @@
-from pydantic import BaseModel, Field 
+from pydantic import BaseModel, Field
 
 
 class source(BaseModel):
     """...."""
-      
-    source: str =Field(default="unknown",description="")
-    page: int| None = Field(default=None, description="")  
-    score: float = Field(description="")  
+
+    source: str = Field(default="unknown", description="")
+    page: int | None = Field(default=None, description="")
+    score: float = Field(description="")

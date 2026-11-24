@@ -35,14 +35,14 @@
 #             sparse_vector_name="sparse",
 #         )
 
-        #llm
-        # self.llm = init_chat_model(
-        #     model=self.settings.chat_model,
-        #     api_key=self.settings.chat_api_key,
-        #     model_provider=self.settings.chat_provider,
-        #     # temperature=self.settings.chat_temperature,
-            
-        # )
+# llm
+# self.llm = init_chat_model(
+#     model=self.settings.chat_model,
+#     api_key=self.settings.chat_api_key,
+#     model_provider=self.settings.chat_provider,
+#     # temperature=self.settings.chat_temperature,
+
+# )
 
 #     def ask(self, question: str) -> Answer:
 #         question = question.strip()
@@ -76,8 +76,8 @@
 #             ]
 #         )
 
-    # def close(self) -> None:
-    #     self.client.close()
+# def close(self) -> None:
+#     self.client.close()
 
 
 # def main():

@@ -1,7 +1,7 @@
 from langchain_community.document_loaders import PyPDFLoader
+from langchain_qdrant import FastEmbedSparse, QdrantVectorStore, RetrievalMode
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_qdrant import QdrantVectorStore, FastEmbedSparse, RetrievalMode
-from qdrant_client.models import Distance, VectorParams, SparseVectorParams
+from qdrant_client.models import Distance, SparseVectorParams, VectorParams
 
 from app.core.config import get_embeddings, get_qdrant_client, get_settings
 
@@ -21,7 +21,7 @@ def main():
         )
 
     # 2) Handbook load karo aur chunks banao
-    docs = PyPDFLoader("files/shop_handbook.pdf").load()   # apna sahi path do
+    docs = PyPDFLoader("files/shop_handbook.pdf").load()  # apna sahi path do
     splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=150)
     chunks = splitter.split_documents(docs)
 

@@ -79,13 +79,11 @@ from langchain_core.embeddings import Embeddings
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from qdrant_client import QdrantClient
 
-
 # api/.env
 ENV_FILE = Path(__file__).resolve().parents[2] / ".env"
 
 
 class Settings(BaseSettings):
-
     model_config = SettingsConfigDict(
         env_prefix="RAG_",
         env_file=ENV_FILE,
@@ -137,23 +135,21 @@ class Settings(BaseSettings):
     qdrant_path: str = "./vector_stores/"
     qdrant_url: str | None = None
 
-     # Agent limit per question 
+    # Agent limit per question
     max_model_call: int = 5
-    max_tool_call:int = 3 
-
+    max_tool_call: int = 3
 
     # ======================================
     # PROMPTS
     # ======================================
 
-
     system_prompt_version: str = "v1"
- 
 
 
 # ==========================================
 # SETTINGS
 # ==========================================
+
 
 @lru_cache
 def get_settings() -> Settings:
@@ -163,6 +159,7 @@ def get_settings() -> Settings:
 # ==========================================
 # EMBEDDINGS
 # ==========================================
+
 
 def get_embeddings(settings: Settings) -> Embeddings:
 
@@ -175,6 +172,7 @@ def get_embeddings(settings: Settings) -> Embeddings:
 # ==========================================
 # QDRANT CLIENT
 # ==========================================
+
 
 def get_qdrant_client(settings: Settings) -> QdrantClient:
 
