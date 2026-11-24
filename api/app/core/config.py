@@ -103,15 +103,15 @@ class Settings(BaseSettings):
     # CHAT MODEL
     # ======================================
 
-    chat_provider: str = "ollama"
-    chat_model: str = "gemma3:1b"
-    chat_temperature: float = 0.1
-
+    chat_provider: str = "google_genai"
+    chat_model: str = "gemini-3.5-flash-lite"
+    chat_temperature: float = 0
+    chat_api_key: str = ""
     # ======================================
     # EMBEDDINGS
     # ======================================
 
-    embed_provider: str = "ollama"
+    embed_provider: str = "google_genai"
     embed_model: str = "nomic-embed-text:latest"
     embed_dim: int = 768
 
@@ -127,7 +127,7 @@ class Settings(BaseSettings):
     # ======================================
 
     top_k: int = 3
-    score_threshold: float = 0.5
+    score_threshold: float = 0
 
     # ======================================
     # QDRANT
@@ -137,15 +137,18 @@ class Settings(BaseSettings):
     qdrant_path: str = "./vector_stores/"
     qdrant_url: str | None = None
 
+     # Agent limit per question 
+    max_model_call: int = 5
+    max_tool_call:int = 3 
+
+
     # ======================================
     # PROMPTS
     # ======================================
 
-    system_prompt: str = (
-        "You are a helpful Clause assistant. "
-        "Answer only from the provided context. "
-        "If the answer is not in the context, say you don't know."
-    )
+
+    system_prompt_version: str = "v1"
+ 
 
 
 # ==========================================

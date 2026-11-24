@@ -1,79 +1,44 @@
-from pathlib import Path
-
-# from pypdf import PdfReader
 from langchain_community.document_loaders import PyPDFLoader
-from langchain_core.documents import Document
-from langchain_qdrant import QdrantVectorStore
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from qdrant_client.models import Distance, VectorParams
+from langchain_qdrant import QdrantVectorStore, FastEmbedSparse, RetrievalMode
+from qdrant_client.models import Distance, VectorParams, SparseVectorParams
 
 from app.core.config import get_embeddings, get_qdrant_client, get_settings
 
 
-def load(path: Path) -> list[Document]:
-    return PyPDFLoader(path).load()
-
-
-def ingest(path: str | None = None) -> int:
+def main():
     settings = get_settings()
-
-    # 1. Load
-    file = Path(path or settings.data_path)
-    documents = load(file)
-
-    # 2. Chunk
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=settings.chunk_size,
-        chunk_overlap=settings.chunk_overlap,
-        separators=["\n\n", "\n", " ", ""],
-    )
-    chunks = text_splitter.split_documents(documents)
-    if not chunks:
-        raise ValueError(f"No text found in {file}")
-
-    # 3. Embed: check the model works before the old collection is deleted
-    embed = get_embeddings(settings)
-
-    actual_dim = len(embed.embed_query("dimension check"))
-    if actual_dim != settings.embed_dim:
-        raise ValueError(
-            f"RAG_EMBED_DIM is {settings.embed_dim}, "
-            f"but {settings.embed_model} returns {actual_dim} dimensions"
-        )
-
-    # 4. Store
     client = get_qdrant_client(settings)
+    embeddings = get_embeddings(settings)
 
-    try:
-        if client.collection_exists(settings.collection_name):
-            client.delete_collection(settings.collection_name)
-
+    # 1) Collection banao agar nahi hai
+    if not client.collection_exists(settings.collection_name):
+        dim = len(embeddings.embed_query("test"))  # embedding size khud nikal lo
         client.create_collection(
             collection_name=settings.collection_name,
-            vectors_config=VectorParams(
-                size=settings.embed_dim, distance=Distance.COSINE
-            ),
+            vectors_config={"dense": VectorParams(size=dim, distance=Distance.COSINE)},
+            sparse_vectors_config={"sparse": SparseVectorParams()},
         )
 
-        vector_store = QdrantVectorStore(
-            client=client,
-            collection_name=settings.collection_name,
-            embedding=embed,
-        )
-        vector_store.add_documents(chunks)
-    finally:
-        client.close()
+    # 2) Handbook load karo aur chunks banao
+    docs = PyPDFLoader("files/shop_handbook.pdf").load()   # apna sahi path do
+    splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=150)
+    chunks = splitter.split_documents(docs)
 
-    return len(chunks)
+    # 3) Qdrant mein daalo
+    store = QdrantVectorStore(
+        client=client,
+        collection_name=settings.collection_name,
+        embedding=embeddings,
+        retrieval_mode=RetrievalMode.HYBRID,
+        sparse_embedding=FastEmbedSparse(model_name="Qdrant/bm25"),
+        vector_name="dense",
+        sparse_vector_name="sparse",
+    )
+    store.add_documents(chunks)
+    print(f"{len(chunks)} chunks ingest ho gaye")
+    client.close()
 
 
-
-
-if __name__=="__main__":
-    print(ingest(), "chunks indexed")
-
-
-# to chnge in documnts or in embading models
-# to run this 
-# cd api
-# uv run python -m app.services.ingestion
+if __name__ == "__main__":
+    main()
